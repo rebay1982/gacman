@@ -2,19 +2,29 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"github.com/rebay1982/gacman/pacman"
 )
 
 func main() {
 
 	fmt.Printf("Welcome to Gacman\n")
-
-	//for {
+	pacman.Init()
 	pacman.Render()
 
-	//	// import "time"
-	//	time.Sleep(200)
-	//}
+mainLoop:
+	for {
+		quit := pacman.PollInput()	
+
+		if quit {
+			break mainLoop
+		}
+
+		// import "time"
+		time.Sleep(200)
+	}
+
+	pacman.Destroy()
 }
 
 
