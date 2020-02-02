@@ -11,6 +11,14 @@ type Pacman struct {
 	PosY		int
 }
 
+type UserInput struct {
+	Up		bool
+	Down	bool
+	Left	bool
+	Right	bool
+	Quit	bool
+}
+
 var player = Pacman{1, 1}
 
 func Init() {
@@ -43,15 +51,16 @@ func Destroy() {
 func Render() {
 
 	// Clear the console screen before rendinering anything.
-	fmt.Printf("\033[H\033[2J")
+	//fmt.Printf("\033[H\033[2J")
+	term.Sync()
 
-	for i := 0; i < currentLevel.Height; i++ {
-		for j := 0; j < currentLevel.Width; j++ {
+	for y := 0; y < currentLevel.Height; y++ {
+		for x := 0; x < currentLevel.Width; x++ {
 
-			if isPacmanHere(i, j) {
+			if isPacmanHere(x, y) {
 				fmt.Printf("P")
 			} else {
-				fmt.Printf(currentLevel.GetBlock(i, j))
+				fmt.Printf(getMapBlock(x, y))
 			}
 		}
 
@@ -59,55 +68,77 @@ func Render() {
 	}
 }
 
-func UpdateGame() {
+func UpdateGame(input UserInput) {
+	if input.Up {
+		if !isCollision(player.PosX, player.PosY - 1) {
+			player.PosY--
+		}
+	}
 
+	if input.Down {
+		if !isCollision(player.PosX, player.PosY + 1) {
+			player.PosY++
+		}
+	}
+
+	if input.Left {
+		if !isCollision(player.PosX - 1, player.PosY) {
+			player.PosX--
+		}
+	}
+
+	if input.Right {
+		if !isCollision(player.PosX + 1, player.PosY) {
+			player.PosX++
+		}
+	}
 }
 
+func isCollision(posX int, posY int) bool {
+	if getMapBlock(posX, posY) == MapWall {
+		return true
+	}
 
-func PollInput() bool {
+	return false
+}
 
-	quit := false
+func PollInput() UserInput {
+
+	var input UserInput
 
 	switch kev := term.PollEvent(); kev.Type {
 	case term.EventKey:
 		switch kev.Key {
 		case term.KeyArrowUp:
-			reset()
-			fmt.Println("Up")
+			input.Up = true
 
 		case term.KeyArrowDown:
-			reset()
-			fmt.Println("Down")
+			input.Down = true
 
 		case term.KeyArrowLeft:
-			reset()
-			fmt.Println("Left")
+			input.Left = true
 
 		case term.KeyArrowRight:
-			reset()
-			fmt.Println("Right")
+			input.Right = true
 
 		case term.KeyEsc:
-			reset()
-			quit = true
+			input.Quit = true
 
 		default:
-			reset()
-			fmt.Println("Some unmapped key.")
+
 		}
 
 	case term.EventError:
 		panic(kev.Err)
 	}
 
-	return quit
-}
-
-func reset() {
-	term.Sync()	// Cosmetic purposes ?
+	return input
 }
 
 func isPacmanHere(posX int, posY int) bool {
-
 	return (posX == player.PosX && posY == player.PosY)
+}
+
+func getMapBlock(posX int, posY int) string {
+	return currentLevel.GetBlock(posY, posX)
 }

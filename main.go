@@ -10,15 +10,18 @@ func main() {
 
 	fmt.Printf("Welcome to Gacman\n")
 	pacman.Init()
-	pacman.Render()
 
 mainLoop:
 	for {
-		quit := pacman.PollInput()	
+		pacman.Render()
 
-		if quit {
+		input := pacman.PollInput()
+
+		if input.Quit {
 			break mainLoop
 		}
+
+		pacman.UpdateGame(input)
 
 		// import "time"
 		time.Sleep(200)
