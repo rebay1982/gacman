@@ -9,6 +9,7 @@ import (
 type Pacman struct {
 	PosX		int
 	PosY		int
+	Score		int
 }
 
 type UserInput struct {
@@ -19,7 +20,7 @@ type UserInput struct {
 	Quit	bool
 }
 
-var player = Pacman{1, 1}
+var player = Pacman{1, 1, 0}
 
 func Init() {
 
@@ -28,18 +29,6 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	// Setup input channel
-	/*
-	ch := make(chan string)
-	go func(ch chan string) {
-		reader := bufio.NewReader(os.Stdin)
-		for {
-			s, err := reader.ReadString('\n')1
-
-
-		}
-	}
-	*/
 }
 
 func Destroy() {
@@ -50,9 +39,10 @@ func Destroy() {
 
 func Render() {
 
-	// Clear the console screen before rendinering anything.
-	//fmt.Printf("\033[H\033[2J")
+	// Cleans up the terminal.
 	term.Sync()
+
+	fmt.Printf("Score: %d\n", player.Score)
 
 	for y := 0; y < currentLevel.Height; y++ {
 		for x := 0; x < currentLevel.Width; x++ {
@@ -69,6 +59,8 @@ func Render() {
 }
 
 func UpdateGame(input UserInput) {
+
+	// Move player around depending on input.
 	if input.Up {
 		if !isCollision(player.PosX, player.PosY - 1) {
 			player.PosY--
@@ -92,6 +84,11 @@ func UpdateGame(input UserInput) {
 			player.PosX++
 		}
 	}
+
+	// Update points.
+	if isPoints, points := isPoints(player.PosX, player.PosY); isPoints {
+		player.Score += points
+	}
 }
 
 func isCollision(posX int, posY int) bool {
@@ -102,6 +99,16 @@ func isCollision(posX int, posY int) bool {
 	return false
 }
 
+func isPoints(posX int, posY int) (bool, int) {
+
+	if getMapBlock(posX, posY) == MapPill {
+		return true, 10
+	}
+
+	return false, 0
+}
+
+// PollInput Polls for user input, returns a user input structure.
 func PollInput() UserInput {
 
 	var input UserInput
