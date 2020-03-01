@@ -109,8 +109,13 @@ func UpdateGame(input UserInput) {
 	}
 
 	// Update points.
-	if isPoints, points := isPoints(gameState.PosX, gameState.PosY); isPoints {
-		gameState.Score += points
+	switch object := getObject(gameState.PosX, gameState.PosY); object {
+	case ST_PILL:
+		gameState.Score += 10
+		pickupObject(gameState.PosX, gameState.PosY)
+
+	default:
+
 	}
 }
 
@@ -122,14 +127,10 @@ func isCollision(posX int, posY int) bool {
 	return false
 }
 
-func isPoints(posX int, posY int) (bool, int) {
-
-	if getMapBlock(posX, posY) == MapPill {
-		return true, 10
-	}
-
-	return false, 0
+func pickupObject(posX int, posY int) {
+	gameState.ObjState[posY][posX] = ST_FREE
 }
+
 
 // PollInput Polls for user input, returns a user input structure.
 func PollInput() UserInput {
