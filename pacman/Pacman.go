@@ -6,10 +6,14 @@ import (
 	term "github.com/nsf/termbox-go"
 )
 
-type Pacman struct {
-	PosX		int
-	PosY		int
-	Score		int
+const ST_FREE int = 0
+const ST_PILL int = 10
+
+type GameState struct {
+	PosX			int
+	PosY			int
+	Score			int
+	ObjState	[][]int
 }
 
 type UserInput struct {
@@ -20,8 +24,19 @@ type UserInput struct {
 	Quit	bool
 }
 
-var player = Pacman{1, 1, 0}
+var gameState GameState = *NewGameState()
 
+// NewGameState Initialize a new pacman state.
+func NewGameState() *GameState {
+	return &GameState{1, 1, 0, [][]int{
+	{ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE},
+	{ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE},
+	{ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE},
+	{ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_PILL, ST_FREE},
+	{ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE, ST_FREE}}}
+}
+
+// Init The init function
 func Init() {
 
 	err := term.Init()
@@ -42,13 +57,21 @@ func Render() {
 	// Cleans up the terminal.
 	term.Sync()
 
-	fmt.Printf("Score: %d\n", player.Score)
+	fmt.Printf("Score: %d\n", gameState.Score)
 
 	for y := 0; y < currentLevel.Height; y++ {
 		for x := 0; x < currentLevel.Width; x++ {
 
 			if isPacmanHere(x, y) {
 				fmt.Printf("P")
+
+			} else if isObjectPresent(x, y) {
+				object := getObject(x, y)
+
+				if object == ST_PILL {
+					fmt.Printf(MapPill)
+				}
+
 			} else {
 				fmt.Printf(getMapBlock(x, y))
 			}
@@ -62,32 +85,32 @@ func UpdateGame(input UserInput) {
 
 	// Move player around depending on input.
 	if input.Up {
-		if !isCollision(player.PosX, player.PosY - 1) {
-			player.PosY--
+		if !isCollision(gameState.PosX, gameState.PosY - 1) {
+			gameState.PosY--
 		}
 	}
 
 	if input.Down {
-		if !isCollision(player.PosX, player.PosY + 1) {
-			player.PosY++
+		if !isCollision(gameState.PosX, gameState.PosY + 1) {
+			gameState.PosY++
 		}
 	}
 
 	if input.Left {
-		if !isCollision(player.PosX - 1, player.PosY) {
-			player.PosX--
+		if !isCollision(gameState.PosX - 1, gameState.PosY) {
+			gameState.PosX--
 		}
 	}
 
 	if input.Right {
-		if !isCollision(player.PosX + 1, player.PosY) {
-			player.PosX++
+		if !isCollision(gameState.PosX + 1, gameState.PosY) {
+			gameState.PosX++
 		}
 	}
 
 	// Update points.
-	if isPoints, points := isPoints(player.PosX, player.PosY); isPoints {
-		player.Score += points
+	if isPoints, points := isPoints(gameState.PosX, gameState.PosY); isPoints {
+		gameState.Score += points
 	}
 }
 
@@ -143,9 +166,19 @@ func PollInput() UserInput {
 }
 
 func isPacmanHere(posX int, posY int) bool {
-	return (posX == player.PosX && posY == player.PosY)
+	return (posX == gameState.PosX && posY == gameState.PosY)
+}
+
+func isObjectPresent(posX int, posY int) bool {
+	return gameState.ObjState[posY][posX] > ST_FREE
 }
 
 func getMapBlock(posX int, posY int) string {
 	return currentLevel.GetBlock(posY, posX)
 }
+
+func getObject(posX int, posY int) int {
+	return gameState.ObjState[posY][posX]
+}
+
+

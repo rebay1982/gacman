@@ -5,9 +5,8 @@ const mapHeight int = 5
 
 const MapWall string = "#"
 const MapPill string = "*"
-const mapFree string = " "
+const MapFree string = " "
 const mapDott string = "."
-
 
 type Level struct {
 	Height	int
@@ -21,7 +20,10 @@ func (l Level) GetBlock(x int, y int) string {
 
 var currentLevel = Level {5, 10,[][]string{
 	{MapWall, MapWall, MapWall, MapWall, MapWall, MapWall, MapWall, MapWall, MapWall, MapWall},
-	{MapWall, mapFree, mapFree, mapFree, mapFree, mapFree, mapFree, mapFree, mapFree, MapWall},
-	{MapWall, mapFree, mapFree, mapFree, MapWall, MapWall, MapWall, MapWall, mapFree, MapWall},
-	{MapWall, mapFree, mapFree, mapFree, MapWall, mapFree, mapFree, mapFree, mapFree, MapWall},
+	{MapWall, MapFree, MapFree, MapFree, MapFree, MapFree, MapFree, MapFree, MapFree, MapWall},
+	{MapWall, MapFree, MapFree, MapFree, MapWall, MapWall, MapWall, MapWall, MapFree, MapWall},
+	{MapWall, MapFree, MapFree, MapFree, MapWall, MapFree, MapFree, MapFree, MapFree, MapWall},
 	{MapWall, MapWall, MapWall, MapWall, MapWall, MapWall, MapWall, MapWall, MapWall, MapWall}}}
+
+
+
